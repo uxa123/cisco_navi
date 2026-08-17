@@ -1,0 +1,34 @@
+{
+  "floors": [
+    {
+      "floor_id": "floor-1",
+      "name": "1階",
+      "nodes": [
+        {"id": "entrance", "name": "入口", "floor_id": "floor-1", "x": 0.0, "y": 0.0, "type": "entrance"},
+        {"id": "corridor-a", "name": "廊下A", "floor_id": "floor-1", "x": 5.0, "y": 0.0, "type": "corridor"},
+        {"id": "corner-a", "name": "曲がり角A", "floor_id": "floor-1", "x": 10.0, "y": 0.0, "type": "corner"},
+        {"id": "room-a", "name": "教室A", "floor_id": "floor-1", "x": 15.0, "y": 0.0, "type": "room"},
+        {"id": "corridor-b", "name": "廊下B", "floor_id": "floor-1", "x": 5.0, "y": 5.0, "type": "corridor"},
+        {"id": "corner-b", "name": "曲がり角B", "floor_id": "floor-1", "x": 10.0, "y": 5.0, "type": "corner"},
+        {"id": "room-b", "name": "教室B", "floor_id": "floor-1", "x": 15.0, "y": 5.0, "type": "room"},
+        {"id": "elevator", "name": "エレベーター", "floor_id": "floor-1", "x": 5.0, "y": 10.0, "type": "elevator"},
+        {"id": "stairs", "name": "階段", "floor_id": "floor-1", "x": 10.0, "y": 10.0, "type": "stairs"},
+        {"id": "lobby", "name": "ロビー", "floor_id": "floor-1", "x": 0.0, "y": 5.0, "type": "corridor"}
+      ],
+      "edges": [
+        {"id": "edge-01", "from": "entrance", "to": "corridor-a", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-02", "from": "corridor-a", "to": "corner-a", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-03", "from": "corner-a", "to": "room-a", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-04", "from": "corridor-a", "to": "corridor-b", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-05", "from": "corridor-b", "to": "corner-b", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-06", "from": "corner-b", "to": "room-b", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-07", "from": "corner-a", "to": "corner-b", "distance": 6.0, "bidirectional": true},
+        {"id": "edge-08", "from": "corridor-b", "to": "elevator", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-09", "from": "elevator", "to": "stairs", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-10", "from": "stairs", "to": "corner-b", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-11", "from": "entrance", "to": "lobby", "distance": 5.0, "bidirectional": true},
+        {"id": "edge-12", "from": "lobby", "to": "corridor-b", "distance": 5.0, "bidirectional": true}
+      ]
+    }
+  ]
+}

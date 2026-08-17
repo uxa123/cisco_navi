@@ -1,0 +1,311 @@
+<mxfile host="65bd71144e">
+    <diagram id="g52xcp1gFoURPgpECXxE" name="ページ-1">
+        <mxGraphModel dx="1822" dy="1307" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="500" pageHeight="800" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-37" parent="1" style="rounded=0;whiteSpace=wrap;html=1;" value="" vertex="1">
+                    <mxGeometry height="1800" width="1000" as="geometry"/>
+                </mxCell>
+                <UserObject label="" mermaidData="{&#xa;  &quot;data&quot;: &quot;sequenceDiagram\n    actor User as 利用者\n    participant App as スマホアプリ&lt;br/&gt;Sensor API・PDR・YOLO\n    participant API as FastAPIバックエンド\n    participant Meraki as MR36・Meraki Cloud\n\n    User-&gt;&gt;App: 目的地を指定\n\n    Meraki-&gt;&gt;API: Scanning APIで位置情報を送信\n    API-&gt;&gt;API: Meraki位置を保存\n\n    App-&gt;&gt;API: 経路探索を要求\n    API-&gt;&gt;API: 現在地から目的地まで経路探索\n    API--&gt;&gt;App: 経路・案内情報を返却\n    App--&gt;&gt;User: 音声案内を開始\n\n    loop Scanning APIの更新待ち\n        App-&gt;&gt;App: Sensor APIで歩数・方向を取得\n        App-&gt;&gt;App: PDRで移動量を計算\n        App-&gt;&gt;App: YOLOで人・障害物を検出\n\n        App-&gt;&gt;API: PDR移動情報を送信\n        API-&gt;&gt;API: 推定位置を更新\n        API-&gt;&gt;API: 通路へマップマッチング\n        API--&gt;&gt;App: 現在位置・次の案内を返却\n\n        App--&gt;&gt;User: 音声案内・障害物警告\n    end\n\n    Meraki-&gt;&gt;API: 新しい位置情報を送信\n    API-&gt;&gt;API: PDR推定位置とのずれを補正\n    API-&gt;&gt;API: 必要に応じて経路を再探索\n    API--&gt;&gt;App: 補正位置・更新経路を返却\n    App--&gt;&gt;User: 更新した案内を読み上げ&quot;,&#xa;  &quot;config&quot;: null&#xa;}" id="S9i0dV1x8Ii6GtQovXIl-1">
+                    <mxCell connectable="0" parent="1" style="group;transparentBounds=1;editIcon=1;lockedGroup=0;groupPadding=10;" vertex="1">
+                        <mxGeometry as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="利用者" mermaidId="n:User" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);participant=seqActorStick;verticalAlign=bottom;align=center;spacingBottom=4;size=90;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="利用者" id="S9i0dV1x8Ii6GtQovXIl-2">
+                    <mxCell parent="S9i0dV1x8Ii6GtQovXIl-1" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);participant=seqActorStick;verticalAlign=bottom;align=center;spacingBottom=4;size=90;lifelineMirror=1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+                        <mxGeometry height="1767" width="150" x="55" y="30" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="スマホアプリ&#xa;Sensor API・PDR・YOLO" mermaidId="n:App" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="スマホアプリ&#xa;Sensor API・PDR・YOLO" id="S9i0dV1x8Ii6GtQovXIl-3">
+                    <mxCell parent="S9i0dV1x8Ii6GtQovXIl-1" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+                        <mxGeometry height="1742" width="150" x="281" y="30" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="FastAPIバックエンド" mermaidId="n:API" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="FastAPIバックエンド" id="S9i0dV1x8Ii6GtQovXIl-4">
+                    <mxCell parent="S9i0dV1x8Ii6GtQovXIl-1" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+                        <mxGeometry height="1742" width="150" x="523" y="30" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="MR36・Meraki Cloud" mermaidId="n:Meraki" mermaidBaseStyle="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" mermaidBaseValue="MR36・Meraki Cloud" id="S9i0dV1x8Ii6GtQovXIl-5">
+                    <mxCell parent="S9i0dV1x8Ii6GtQovXIl-1" style="html=1;shape=umlLifeline;perimeter=lifelinePerimeter;whiteSpace=wrap;container=1;dropTarget=0;collapsible=0;recursiveResize=0;outlineConnect=0;portConstraint=eastwest;newEdgeStyle={&quot;edgeStyle&quot;:&quot;elbowEdgeStyle&quot;,&quot;elbow&quot;:&quot;vertical&quot;,&quot;curved&quot;:0,&quot;rounded&quot;:0};lifelineDashed=0;strokeWidth=2;rounded=1;absoluteArcSize=1;arcSize=6;lifelineColor=light-dark(#9370DB,#cccccc);size=65;lifelineMirror=1;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" vertex="1">
+                        <mxGeometry height="1742" width="150" x="791" y="30" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="loop" mermaidId="n:f0" mermaidBaseStyle="html=1;shape=umlFrame;dashed=1;fixDash=1;dashPattern=2 2;strokeWidth=2;pointerEvents=0;dropTarget=0;fillColor=light-dark(#ECECFF,#1f2020);strokeColor=light-dark(#9370DB,#cccccc);fontSize=16;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontColor=light-dark(#333333,#cccccc);height=20;width=50;" mermaidBaseValue="loop" id="S9i0dV1x8Ii6GtQovXIl-6">
+                    <mxCell parent="S9i0dV1x8Ii6GtQovXIl-1" style="html=1;shape=umlFrame;dashed=1;fixDash=1;dashPattern=2 2;strokeWidth=2;pointerEvents=0;dropTarget=0;fontSize=16;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;height=20;width=50;" vertex="1">
+                        <mxGeometry height="733" width="668" x="30" y="597" as="geometry"/>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-7" parent="S9i0dV1x8Ii6GtQovXIl-6" style="text;align=center;verticalAlign=middle;whiteSpace=wrap;fontSize=16;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" value="[Scanning APIの更新待ち]" vertex="1">
+                    <mxGeometry height="16" width="614" x="54" y="2" as="geometry"/>
+                </mxCell>
+                <UserObject label="目的地を指定" mermaidId="e:User-&gt;App#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="目的地を指定" id="S9i0dV1x8Ii6GtQovXIl-8">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-2" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="243" y="139"/>
+                            </Array>
+                            <mxPoint x="130" y="139" as="sourcePoint"/>
+                            <mxPoint x="356" y="139" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="Scanning APIで位置情報を送信" mermaidId="e:Meraki-&gt;API#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="Scanning APIで位置情報を送信" id="S9i0dV1x8Ii6GtQovXIl-9">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-5" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="732" y="183"/>
+                            </Array>
+                            <mxPoint x="866" y="183" as="sourcePoint"/>
+                            <mxPoint x="598" y="183" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="" mermaidId="e:API-&gt;API#0" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-10">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="257"/>
+                                <mxPoint x="637" y="269"/>
+                                <mxPoint x="633" y="281"/>
+                            </Array>
+                            <mxPoint x="598" y="257" as="sourcePoint"/>
+                            <mxPoint x="598" y="281" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-11" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="Meraki位置を保存" vertex="1">
+                    <mxGeometry height="18" width="200" x="498" y="233" as="geometry"/>
+                </mxCell>
+                <UserObject label="経路探索を要求" mermaidId="e:App-&gt;API#0" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="経路探索を要求" id="S9i0dV1x8Ii6GtQovXIl-12">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="477" y="331"/>
+                            </Array>
+                            <mxPoint x="356" y="331" as="sourcePoint"/>
+                            <mxPoint x="598" y="331" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="" mermaidId="e:API-&gt;API#1" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-13">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="422"/>
+                                <mxPoint x="637" y="434"/>
+                                <mxPoint x="633" y="446"/>
+                            </Array>
+                            <mxPoint x="598" y="422" as="sourcePoint"/>
+                            <mxPoint x="598" y="446" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-14" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="現在地から目的地まで経路探索" vertex="1">
+                    <mxGeometry height="18" width="200" x="498" y="398" as="geometry"/>
+                </mxCell>
+                <UserObject label="経路・案内情報を返却" mermaidId="e:API-&gt;App#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="経路・案内情報を返却" id="S9i0dV1x8Ii6GtQovXIl-15">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="477" y="496"/>
+                            </Array>
+                            <mxPoint x="598" y="496" as="sourcePoint"/>
+                            <mxPoint x="356" y="496" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="音声案内を開始" mermaidId="e:App-&gt;User#0" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="音声案内を開始" id="S9i0dV1x8Ii6GtQovXIl-16">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-2">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="243" y="540"/>
+                            </Array>
+                            <mxPoint x="356" y="540" as="sourcePoint"/>
+                            <mxPoint x="130" y="540" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="" mermaidId="e:App-&gt;App#0" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-17">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="391" y="672"/>
+                                <mxPoint x="395" y="684"/>
+                                <mxPoint x="391" y="696"/>
+                            </Array>
+                            <mxPoint x="356" y="672" as="sourcePoint"/>
+                            <mxPoint x="356" y="696" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-18" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="Sensor APIで歩数・方向を取得" vertex="1">
+                    <mxGeometry height="18" width="200" x="256" y="648" as="geometry"/>
+                </mxCell>
+                <UserObject label="" mermaidId="e:App-&gt;App#1" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-19">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="391" y="786"/>
+                                <mxPoint x="395" y="798"/>
+                                <mxPoint x="391" y="810"/>
+                            </Array>
+                            <mxPoint x="356" y="786" as="sourcePoint"/>
+                            <mxPoint x="356" y="810" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-20" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="PDRで移動量を計算" vertex="1">
+                    <mxGeometry height="18" width="200" x="256" y="762" as="geometry"/>
+                </mxCell>
+                <UserObject label="" mermaidId="e:App-&gt;App#2" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-21">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="391" y="900"/>
+                                <mxPoint x="395" y="912"/>
+                                <mxPoint x="391" y="924"/>
+                            </Array>
+                            <mxPoint x="356" y="900" as="sourcePoint"/>
+                            <mxPoint x="356" y="924" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-22" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="YOLOで人・障害物を検出" vertex="1">
+                    <mxGeometry height="18" width="200" x="256" y="876" as="geometry"/>
+                </mxCell>
+                <UserObject label="PDR移動情報を送信" mermaidId="e:App-&gt;API#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="PDR移動情報を送信" id="S9i0dV1x8Ii6GtQovXIl-23">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="477" y="984"/>
+                            </Array>
+                            <mxPoint x="356" y="984" as="sourcePoint"/>
+                            <mxPoint x="598" y="984" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="" mermaidId="e:API-&gt;API#2" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-24">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="1068"/>
+                                <mxPoint x="637" y="1080"/>
+                                <mxPoint x="633" y="1092"/>
+                            </Array>
+                            <mxPoint x="598" y="1068" as="sourcePoint"/>
+                            <mxPoint x="598" y="1092" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-25" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="推定位置を更新" vertex="1">
+                    <mxGeometry height="18" width="200" x="498" y="1044" as="geometry"/>
+                </mxCell>
+                <UserObject label="" mermaidId="e:API-&gt;API#3" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-26">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="1182"/>
+                                <mxPoint x="637" y="1194"/>
+                                <mxPoint x="633" y="1206"/>
+                            </Array>
+                            <mxPoint x="598" y="1182" as="sourcePoint"/>
+                            <mxPoint x="598" y="1206" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-27" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="通路へマップマッチング" vertex="1">
+                    <mxGeometry height="18" width="200" x="498" y="1158" as="geometry"/>
+                </mxCell>
+                <UserObject label="現在位置・次の案内を返却" mermaidId="e:API-&gt;App#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="現在位置・次の案内を返却" id="S9i0dV1x8Ii6GtQovXIl-28">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="477" y="1266"/>
+                            </Array>
+                            <mxPoint x="598" y="1266" as="sourcePoint"/>
+                            <mxPoint x="356" y="1266" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="音声案内・障害物警告" mermaidId="e:App-&gt;User#1" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="音声案内・障害物警告" id="S9i0dV1x8Ii6GtQovXIl-29">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-2">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="243" y="1320"/>
+                            </Array>
+                            <mxPoint x="356" y="1320" as="sourcePoint"/>
+                            <mxPoint x="130" y="1320" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="新しい位置情報を送信" mermaidId="e:Meraki-&gt;API#1" mermaidBaseStyle="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="新しい位置情報を送信" id="S9i0dV1x8Ii6GtQovXIl-30">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-5" style="endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="732" y="1374"/>
+                            </Array>
+                            <mxPoint x="866" y="1374" as="sourcePoint"/>
+                            <mxPoint x="598" y="1374" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="" mermaidId="e:API-&gt;API#4" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-31">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="1465"/>
+                                <mxPoint x="637" y="1477"/>
+                                <mxPoint x="633" y="1489"/>
+                            </Array>
+                            <mxPoint x="598" y="1465" as="sourcePoint"/>
+                            <mxPoint x="598" y="1489" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-32" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="PDR推定位置とのずれを補正" vertex="1">
+                    <mxGeometry height="18" width="200" x="610" y="1441" as="geometry"/>
+                </mxCell>
+                <UserObject label="" mermaidId="e:API-&gt;API#5" mermaidBaseStyle="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="" id="S9i0dV1x8Ii6GtQovXIl-33">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="edgeStyle=none;curved=1;endArrow=block;endSize=9;verticalAlign=bottom;align=center;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-4">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="633" y="1569"/>
+                                <mxPoint x="637" y="1581"/>
+                                <mxPoint x="633" y="1593"/>
+                            </Array>
+                            <mxPoint x="598" y="1569" as="sourcePoint"/>
+                            <mxPoint x="598" y="1593" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <mxCell id="S9i0dV1x8Ii6GtQovXIl-34" parent="S9i0dV1x8Ii6GtQovXIl-1" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;fontSize=16;" value="必要に応じて経路を再探索" vertex="1">
+                    <mxGeometry height="18" width="200" x="600" y="1545" as="geometry"/>
+                </mxCell>
+                <UserObject label="補正位置・更新経路を返却" mermaidId="e:API-&gt;App#2" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="補正位置・更新経路を返却" id="S9i0dV1x8Ii6GtQovXIl-35">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-4" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-3">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="477" y="1643"/>
+                            </Array>
+                            <mxPoint x="598" y="1643" as="sourcePoint"/>
+                            <mxPoint x="356" y="1643" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+                <UserObject label="更新した案内を読み上げ" mermaidId="e:App-&gt;User#2" mermaidBaseStyle="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;strokeColor=light-dark(#333333,#cccccc);fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" mermaidBaseValue="更新した案内を読み上げ" id="S9i0dV1x8Ii6GtQovXIl-36">
+                    <mxCell edge="1" parent="S9i0dV1x8Ii6GtQovXIl-1" source="S9i0dV1x8Ii6GtQovXIl-3" style="dashed=1;fixDash=1;dashPattern=3 3;endArrow=block;endSize=9;verticalAlign=bottom;edgeStyle=elbowEdgeStyle;elbow=vertical;curved=0;rounded=0;fontSize=16;labelBackgroundColor=none;strokeWidth=1.5;fontColor=light-dark(#333333,#cccccc);fontFamily=Trebuchet MS,Verdana,Arial,sans-serif;" target="S9i0dV1x8Ii6GtQovXIl-2">
+                        <mxGeometry relative="1" as="geometry">
+                            <Array as="points">
+                                <mxPoint x="243" y="1687"/>
+                            </Array>
+                            <mxPoint x="356" y="1687" as="sourcePoint"/>
+                            <mxPoint x="130" y="1687" as="targetPoint"/>
+                        </mxGeometry>
+                    </mxCell>
+                </UserObject>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>

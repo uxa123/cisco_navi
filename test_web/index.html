@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>経路探索 API テストコンソール</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <p class="eyebrow">INDOOR NAVIGATION / TEST TOOL</p>
+      <h1>経路探索コンソール</h1>
+    </div>
+    <div class="connection">
+      <span id="health-dot" class="dot"></span>
+      <span id="health-label">未接続</span>
+    </div>
+  </header>
+
+  <main>
+    <section class="toolbar panel">
+      <label>API URL<input id="api-url" value="http://127.0.0.1:8000"></label>
+      <label>フロア<input id="floor-id" value="floor-1"></label>
+      <button id="reload-button" class="secondary">地図を再読込</button>
+      <p id="status" role="status">APIへ接続してください</p>
+    </section>
+
+    <div class="workspace">
+      <section class="map-panel panel">
+        <div class="section-heading">
+          <div><span class="step">MAP</span><h2 id="map-title">施設地図</h2></div>
+          <div class="legend">
+            <span><i class="line normal"></i>通路</span>
+            <span><i class="line route"></i>探索経路</span>
+            <span><i class="line blocked"></i>通行止め</span>
+          </div>
+        </div>
+        <div id="map-container" class="map-container">
+          <svg id="facility-map" aria-label="施設経路地図"></svg>
+          <div id="empty-map" class="empty-map"></div>
+        </div>
+        <p class="map-help">ノードをクリックすると目的地に設定できます。地図上の空白をクリックすると現在座標へ反映します。</p>
+      </section>
+
+      <aside class="controls">
+        <section class="panel control-card">
+          <div class="section-heading"><div><span class="step">01</span><h2>現在位置</h2></div></div>
+          <label>クライアントID<input id="client-id" value="cc:cc:cc:11:11:11"></label>
+          <div class="coordinate-row">
+            <label>X（m）<input id="position-x" type="number" value="0" step="0.1"></label>
+            <label>Y（m）<input id="position-y" type="number" value="0" step="0.1"></label>
+          </div>
+          <label>測位誤差（m）<input id="variance" type="number" value="1.5" min="0" step="0.1"></label>
+          <button id="position-button">現在位置を登録</button>
+          <div id="nearest-result" class="result muted">未登録（Scanning受信時は自動更新）</div>
+        </section>
+
+        <section class="panel control-card">
+          <div class="section-heading">
+            <div><span class="step">02</span><h2>目的地と経路</h2></div>
+            <label class="live-toggle" title="現在位置の変化に合わせて経路を再探索します">
+              <input id="auto-route" type="checkbox" checked>
+              <span>LIVE</span>
+            </label>
+          </div>
+          <label>目的地<select id="destination"><option value="">地図を読み込んでください</option></select></label>
+          <button id="route-button">最短経路を探索</button>
+          <p id="route-updated-at" class="live-status">自動更新を待機しています</p>
+          <div class="route-summary">
+            <span>合計距離</span><strong id="total-distance">—</strong>
+          </div>
+          <ol id="guidance" class="guidance"><li class="muted">経路探索後に案内を表示します</li></ol>
+        </section>
+
+        <section class="panel control-card">
+          <div class="section-heading"><div><span class="step">03</span><h2>通行止め</h2></div></div>
+          <p class="hint">スイッチを切り替えると、同じ目的地へ自動的に再探索します。</p>
+          <div id="obstacle-list" class="obstacle-list"><span class="muted">地図を読み込んでください</span></div>
+        </section>
+
+        <section class="panel control-card simulator-card">
+          <div class="section-heading">
+            <div><span class="step">04</span><h2>移動シミュレーター</h2></div>
+            <span id="simulation-badge" class="simulation-badge">STOPPED</span>
+          </div>
+          <label>シナリオ
+            <select id="simulation-scenario">
+              <option value="normal">通常移動</option>
+              <option value="off-route">経路を無視（ルート逸脱）</option>
+              <option value="stationary">停止状態</option>
+              <option value="location-unavailable">位置取得失敗</option>
+            </select>
+          </label>
+          <div class="coordinate-row">
+            <label>送信間隔（秒）<input id="simulation-interval" type="number" value="1.5" min="0.2" step="0.1"></label>
+            <label class="loop-option"><span>経路をループ</span><input id="simulation-loop" type="checkbox" checked></label>
+          </div>
+          <div class="simulation-actions">
+            <button id="simulation-start">移動を開始</button>
+            <button id="simulation-stop" class="danger" disabled>停止</button>
+          </div>
+          <div class="simulation-progress"><span id="simulation-progress-bar"></span></div>
+          <p id="simulation-status" class="hint">画面からScanning Payloadを送信します</p>
+        </section>
+      </aside>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

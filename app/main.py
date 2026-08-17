@@ -7,8 +7,13 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.repositories import JsonMapRepository, MapDataError, ObstacleRepository, PositionRepository
+from app.repositories import (
+    JsonMapRepository, MapDataError, NavigationSessionRepository,
+    ObstacleRepository, PositionRepository,
+)
 from app.routers.api import router
+from app.routers.navigation import router as navigation_router
+from app.services.navigation_session import NavigationSessionService
 
 logger = logging.getLogger(__name__)
 DEFAULT_MAP_PATH = Path(__file__).resolve().parent.parent / "data" / "facility_map.json"
@@ -31,7 +36,13 @@ def create_app(map_path: Path | None = None) -> FastAPI:
     application.state.map_repository = JsonMapRepository(map_path or DEFAULT_MAP_PATH)
     application.state.positions = PositionRepository()
     application.state.obstacles = ObstacleRepository()
+    application.state.sessions = NavigationSessionRepository()
+    application.state.navigation = NavigationSessionService(
+        application.state.map_repository, application.state.positions,
+        application.state.obstacles, application.state.sessions,
+    )
     application.include_router(router)
+    application.include_router(navigation_router)
 
     @application.exception_handler(MapDataError)
     async def map_data_error_handler(request: Request, exc: MapDataError) -> JSONResponse:

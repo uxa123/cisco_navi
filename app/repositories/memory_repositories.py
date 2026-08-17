@@ -1,6 +1,6 @@
 """試作段階の実行時状態を保持する、差し替え可能なメモリリポジトリ。"""
 
-from app.schemas.models import NormalizedPosition, Obstacle
+from app.schemas.models import NavigationSession, NormalizedPosition, Obstacle
 
 
 class PositionRepository:
@@ -35,3 +35,23 @@ class ObstacleRepository:
 
     def blocked_edge_ids(self) -> set[str]:
         return set(self._obstacles)
+
+
+class NavigationSessionRepository:
+    """ナビゲーションセッションをプロセス内に保持する。"""
+
+    def __init__(self) -> None:
+        self._sessions: dict[str, NavigationSession] = {}
+
+    def save(self, session: NavigationSession) -> None:
+        self._sessions[session.session_id] = session
+
+    def get(self, session_id: str) -> NavigationSession | None:
+        return self._sessions.get(session_id)
+
+    def active_for_client(self, client_id: str) -> list[NavigationSession]:
+        return [session for session in self._sessions.values()
+                if session.client_id == client_id and session.status == "active"]
+
+    def list(self) -> list[NavigationSession]:
+        return list(self._sessions.values())

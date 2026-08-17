@@ -40,6 +40,7 @@ async def health() -> dict[str, str]:
 @router.post("/scanning", response_model=ScanningReceiveResponse)
 async def receive_scanning_payload(
     body: ScanningPayload,
+    request: Request,
     maps: JsonMapRepository = Depends(get_map_repository),
     positions: PositionRepository = Depends(get_positions),
 ) -> ScanningReceiveResponse:
@@ -55,6 +56,7 @@ async def receive_scanning_payload(
         if maps.get_floor(normalized.floor_id) is None:
             raise _error(404, "MAP_NOT_FOUND", "受信した位置に対応する地図が見つかりません")
         positions.save(normalized)
+        request.app.state.navigation.correct_client(normalized)
         updated_clients.append(normalized.client_id)
     return ScanningReceiveResponse(
         received=len(body.data.observations), updated=len(updated_clients),
@@ -148,6 +150,7 @@ async def search_route(
 @router.post("/obstacles", response_model=ObstacleResponse)
 async def set_obstacle(
     body: ObstacleRequest,
+    request: Request,
     maps: JsonMapRepository = Depends(get_map_repository),
     obstacles: ObstacleRepository = Depends(get_obstacles),
 ) -> ObstacleResponse:
@@ -155,6 +158,7 @@ async def set_obstacle(
         raise _error(404, "EDGE_NOT_FOUND", "指定されたエッジが見つかりません")
     obstacle = Obstacle(**body.model_dump())
     obstacles.save(obstacle)
+    request.app.state.navigation.obstacle_changed(body.edge_id, body.blocked)
     message = "通路を通行不可に設定しました" if body.blocked else "通路の通行止めを解除しました"
     return ObstacleResponse(**obstacle.model_dump(), message=message)
 

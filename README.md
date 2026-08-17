@@ -68,6 +68,41 @@ curl -X POST http://127.0.0.1:8000/api/obstacles \
 利用可能なAPIは、地図取得、位置登録・取得、経路探索、障害物登録・一覧・解除です。
 詳細なリクエスト・レスポンス型はSwagger UIを参照してください。状態はプロセスの再起動で初期化されます。
 
+## ナビゲーションセッションとPDR
+
+単発の経路探索に加え、スマートフォンから定期取得できるナビゲーションセッションAPIを利用できます。
+
+```text
+POST   /api/navigation/sessions
+GET    /api/navigation/sessions/{session_id}
+GET    /api/navigation/sessions/{session_id}/state
+POST   /api/navigation/sessions/{session_id}/movements
+DELETE /api/navigation/sessions/{session_id}
+```
+
+ナビ開始前にMeraki受信または`POST /api/mock/positions`でクライアントの絶対位置を登録します。
+開始時の絶対位置がPDRの基準となり、movementの方位は`0°=北(+Y)`、`90°=東(+X)`、
+`180°=南(-Y)`、`270°=西(-X)`として積算されます。
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/navigation/sessions \
+  -H 'Content-Type: application/json' \
+  -d '{"client_id":"mock-user-01","destination_id":"room-b"}'
+
+curl -X POST http://127.0.0.1:8000/api/navigation/sessions/nav-xxxxxxxx/movements \
+  -H 'Content-Type: application/json' \
+  -d '{"sequence":1,"distance_m":0.68,"heading_deg":90,"timestamp":"2026-08-17T19:30:20+09:00"}'
+```
+
+movementは`distance_m`の代わりに`steps`と`step_length_m`も指定できます。同一または古い
+`sequence`は適用済みとして扱われ、位置へ二重加算されません。状態レスポンスにはMeraki位置、
+PDR位置、融合位置、マップマッチした通路、残距離、次の案内が含まれます。
+
+新しいMeraki位置を受信すると、同じclient_idの実行中セッションだけがその絶対位置で補正され、
+以後のPDR積算基準もリセットされます。推定位置は3m以内の最寄り通路へ投影され、現在ルートから
+2mを超えて外れた場合は再探索します。目的地から1m以内は到着と判定します。現在ルート上の通路が
+通行止めになった場合も、自動的に迂回経路を探索します。
+
 ## SVGテスト画面
 
 テスト画面は本番FastAPIアプリには組み込まれていません。APIとは別のターミナルで、

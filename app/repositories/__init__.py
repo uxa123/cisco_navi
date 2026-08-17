@@ -1,6 +1,9 @@
 """データアクセスの実装。"""
 
 from .map_repository import JsonMapRepository, MapDataError
-from .memory_repositories import ObstacleRepository, PositionRepository
+from .memory_repositories import NavigationSessionRepository, ObstacleRepository, PositionRepository
 
-__all__ = ["JsonMapRepository", "MapDataError", "ObstacleRepository", "PositionRepository"]
+__all__ = [
+    "JsonMapRepository", "MapDataError", "NavigationSessionRepository",
+    "ObstacleRepository", "PositionRepository",
+]

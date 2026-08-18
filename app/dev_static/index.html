@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Indoor Navigation - Development Panel</title>
+  <link rel="stylesheet" href="/dev/assets/dev.css">
+</head>
+<body>
+  <header>
+    <div><p class="eyebrow">INTEGRATION TEST TOOL</p><h1>Indoor Navigation - Development Panel</h1></div>
+    <div class="header-actions"><span class="dev-warning">開発環境専用</span><button id="refresh">更新</button></div>
+  </header>
+  <main>
+    <section class="card status-card">
+      <div class="title-row"><h2>Backend</h2><span id="online" class="online">ONLINE</span></div>
+      <div class="metrics">
+        <div><span>Current Time</span><strong id="current-time">-</strong></div>
+        <div><span>Active Clients</span><strong id="client-count">-</strong></div>
+        <div><span>Active Sessions</span><strong id="session-count">-</strong></div>
+        <div><span>Blocked Edges</span><strong id="obstacle-count">-</strong></div>
+      </div>
+      <div class="last-access">
+        <div><span>Last Android API Access <small>（推定）</small></span><strong id="last-android">-</strong></div>
+        <div><span>Last Scanning Push</span><strong id="last-scanning">-</strong></div>
+        <div><span>Last Movement</span><strong id="last-movement">-</strong></div>
+        <div><span>Last State Poll</span><strong id="last-state">-</strong></div>
+      </div>
+      <p id="global-message" class="message">2.5秒ごとに自動更新します</p>
+    </section>
+
+    <div class="columns">
+      <div class="stack">
+        <section class="card"><div class="title-row"><h2>Clients / Positions</h2><span id="clients-badge" class="badge">0</span></div><div id="clients" class="empty">位置情報はありません</div></section>
+        <section class="card"><div class="title-row"><h2>Navigation Sessions</h2><span id="sessions-badge" class="badge">0</span></div><div id="sessions" class="empty">セッションはありません</div></section>
+        <section class="card"><div class="title-row"><h2>Recent Communication</h2><span class="hint">最大100件 / Body・Headerは保存しません</span></div><div class="table-wrap"><table><thead><tr><th>Time</th><th>Source</th><th>Method / Path</th><th>Status</th><th>ms</th><th>Client / Session</th></tr></thead><tbody id="logs"><tr><td colspan="6" class="empty">通信履歴はありません</td></tr></tbody></table></div></section>
+      </div>
+
+      <aside class="stack">
+        <section class="card operation"><h2>Mock Position</h2><label>client_id<input id="mock-client" value="mock-user-01"></label><label>floor_id<input id="mock-floor" value="floor-1"></label><div class="pair"><label>x<input id="mock-x" type="number" value="0" step="0.1"></label><label>y<input id="mock-y" type="number" value="0" step="0.1"></label></div><label>variance<input id="mock-variance" type="number" value="1.5" min="0" step="0.1"></label><button id="send-mock">モック位置を登録</button><p id="mock-result" class="result">-</p></section>
+
+        <section class="card operation scanning"><h2>Meraki Scanning Push</h2><label>clientMac<input id="scan-client" value="mock-user-01"></label><label>floorPlanId<input id="scan-floor" value="floor-1"></label><div class="pair"><label>x<input id="scan-x" type="number" value="0" step="0.1"></label><label>y<input id="scan-y" type="number" value="0" step="0.1"></label></div><label>variance<input id="scan-variance" type="number" value="1.5" min="0" step="0.1"></label><button id="send-scanning">Meraki位置として送信</button><p id="scanning-result" class="result">-</p></section>
+
+        <section class="card operation"><h2>Movement Test</h2><label>session_id<select id="movement-session"><option value="">実行中セッションなし</option></select></label><div class="directions"><button data-heading="0">北へ1m</button><button data-heading="90">東へ1m</button><button data-heading="180">南へ1m</button><button data-heading="270">西へ1m</button></div><p id="movement-result" class="result">-</p></section>
+
+        <section class="card operation"><h2>Obstacles</h2><label>edge_id<input id="obstacle-edge" value="edge-04"></label><label>reason<input id="obstacle-reason" value="開発パネルから登録"></label><div class="pair"><button id="block-edge" class="danger">通行止め</button><button id="unblock-edge" class="secondary">解除</button></div><div id="obstacles" class="result">通行止めなし</div></section>
+
+        <section class="card operation reset-card"><h2>Development State</h2><p class="hint">現在位置、セッション、通行止め、通信ログを消去します。</p><button id="reset-state" class="danger outline">開発状態をリセット</button></section>
+      </aside>
+    </div>
+  </main>
+  <script src="/dev/assets/dev.js"></script>
+</body>
+</html>

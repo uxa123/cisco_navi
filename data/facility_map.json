@@ -4,16 +4,16 @@
       "floor_id": "floor-1",
       "name": "1階",
       "nodes": [
-        {"id": "entrance", "name": "入口", "floor_id": "floor-1", "x": 0.0, "y": 0.0, "type": "entrance"},
-        {"id": "corridor-a", "name": "廊下A", "floor_id": "floor-1", "x": 5.0, "y": 0.0, "type": "corridor"},
-        {"id": "corner-a", "name": "曲がり角A", "floor_id": "floor-1", "x": 10.0, "y": 0.0, "type": "corner"},
-        {"id": "room-a", "name": "教室A", "floor_id": "floor-1", "x": 15.0, "y": 0.0, "type": "room"},
-        {"id": "corridor-b", "name": "廊下B", "floor_id": "floor-1", "x": 5.0, "y": 5.0, "type": "corridor"},
-        {"id": "corner-b", "name": "曲がり角B", "floor_id": "floor-1", "x": 10.0, "y": 5.0, "type": "corner"},
-        {"id": "room-b", "name": "教室B", "floor_id": "floor-1", "x": 15.0, "y": 5.0, "type": "room"},
-        {"id": "elevator", "name": "エレベーター", "floor_id": "floor-1", "x": 5.0, "y": 10.0, "type": "elevator"},
-        {"id": "stairs", "name": "階段", "floor_id": "floor-1", "x": 10.0, "y": 10.0, "type": "stairs"},
-        {"id": "lobby", "name": "ロビー", "floor_id": "floor-1", "x": 0.0, "y": 5.0, "type": "corridor"}
+        {"id": "entrance", "name": "入口", "floor_id": "floor-1", "x": 0.0, "y": 0.0, "type": "entrance", "selectable": true},
+        {"id": "corridor-a", "name": "廊下A", "floor_id": "floor-1", "x": 5.0, "y": 0.0, "type": "corridor", "selectable": false},
+        {"id": "corner-a", "name": "曲がり角A", "floor_id": "floor-1", "x": 10.0, "y": 0.0, "type": "corner", "selectable": false},
+        {"id": "room-a", "name": "教室A", "floor_id": "floor-1", "x": 15.0, "y": 0.0, "type": "room", "selectable": true},
+        {"id": "corridor-b", "name": "廊下B", "floor_id": "floor-1", "x": 5.0, "y": 5.0, "type": "corridor", "selectable": false},
+        {"id": "corner-b", "name": "曲がり角B", "floor_id": "floor-1", "x": 10.0, "y": 5.0, "type": "corner", "selectable": false},
+        {"id": "room-b", "name": "教室B", "floor_id": "floor-1", "x": 15.0, "y": 5.0, "type": "room", "selectable": true},
+        {"id": "elevator", "name": "エレベーター", "floor_id": "floor-1", "x": 5.0, "y": 10.0, "type": "elevator", "selectable": true},
+        {"id": "stairs", "name": "階段", "floor_id": "floor-1", "x": 10.0, "y": 10.0, "type": "stairs", "selectable": true},
+        {"id": "lobby", "name": "ロビー", "floor_id": "floor-1", "x": 0.0, "y": 5.0, "type": "corridor", "selectable": true}
       ],
       "edges": [
         {"id": "edge-01", "from": "entrance", "to": "corridor-a", "distance": 5.0, "bidirectional": true},

@@ -13,6 +13,7 @@ class MapNode(BaseModel):
     x: float
     y: float
     type: str
+    selectable: bool = False
 
 
 class MapEdge(BaseModel):

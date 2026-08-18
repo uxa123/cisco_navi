@@ -88,6 +88,13 @@ button.danger:hover { background: #853838; }
 .switch input:checked + span { background: var(--red); }
 .switch input:checked + span::after { transform: translateX(16px); }
 .simulator-card { border-color: #315347; }
+.simulator-overview { margin-bottom: 20px; padding: 18px 20px; background: linear-gradient(120deg, #16231e, #101412 62%); }
+.simulator-overview .section-heading { min-height: 32px; margin-bottom: 12px; }
+.simulator-layout { display: grid; grid-template-columns: minmax(210px, 1.15fr) minmax(220px, 1fr) minmax(230px, .9fr) minmax(250px, 1.35fr); gap: 16px; align-items: end; }
+.simulator-layout label { margin-bottom: 0; }
+.simulation-settings { align-items: end; }
+.simulation-feedback { align-self: center; min-width: 0; }
+.simulation-feedback .hint { margin: 7px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .simulation-badge { padding: 5px 8px; border: 1px solid #3b4641; border-radius: 20px; color: var(--muted); font: 700 9px ui-monospace, monospace; letter-spacing: .1em; }
 .simulation-badge.running { color: #55e1ae; border-color: #2a795e; background: #102a21; animation: badge-pulse 1.2s ease-in-out infinite; }
 .simulation-badge.running.off-route { color: #ff9b72; border-color: #a65334; background: #301a12; }
@@ -99,5 +106,6 @@ button.danger:hover { background: #853838; }
 @keyframes badge-pulse { 50% { box-shadow: 0 0 14px rgba(56,217,159,.25); } }
 @keyframes position-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.45); opacity: .65; } }
 @keyframes route-flash { 0% { box-shadow: inset 0 0 0 2px rgba(56,217,159,.9), 0 0 25px rgba(56,217,159,.35); } 100% { box-shadow: inset 0 0 0 0 transparent, 0 0 0 transparent; } }
+@media (max-width: 1100px) { .simulator-layout { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 980px) { .workspace { grid-template-columns: 1fr; } .controls { grid-template-columns: repeat(3, 1fr); } .map-panel { min-height: auto; } }
-@media (max-width: 720px) { .toolbar { grid-template-columns: 1fr 1fr; } #status { text-align: left; } .controls { grid-template-columns: 1fr; } .legend { display: none; } .topbar { min-height: 94px; } }
+@media (max-width: 720px) { .toolbar { grid-template-columns: 1fr 1fr; } #status { text-align: left; } .controls, .simulator-layout { grid-template-columns: 1fr; } .legend { display: none; } .topbar { min-height: 94px; } .simulation-feedback .hint { white-space: normal; } }

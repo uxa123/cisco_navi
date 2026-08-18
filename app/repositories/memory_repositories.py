@@ -1,5 +1,8 @@
 """試作段階の実行時状態を保持する、差し替え可能なメモリリポジトリ。"""
 
+from collections import deque
+
+from app.schemas.dev import CommunicationLog
 from app.schemas.models import NavigationSession, NormalizedPosition, Obstacle
 
 
@@ -15,6 +18,12 @@ class PositionRepository:
 
     def get_latest(self, client_id: str) -> NormalizedPosition | None:
         return self._positions.get(client_id)
+
+    def list(self) -> list[NormalizedPosition]:
+        return list(self._positions.values())
+
+    def clear(self) -> None:
+        self._positions.clear()
 
 
 class ObstacleRepository:
@@ -36,6 +45,9 @@ class ObstacleRepository:
     def blocked_edge_ids(self) -> set[str]:
         return set(self._obstacles)
 
+    def clear(self) -> None:
+        self._obstacles.clear()
+
 
 class NavigationSessionRepository:
     """ナビゲーションセッションをプロセス内に保持する。"""
@@ -55,3 +67,22 @@ class NavigationSessionRepository:
 
     def list(self) -> list[NavigationSession]:
         return list(self._sessions.values())
+
+    def clear(self) -> None:
+        self._sessions.clear()
+
+
+class CommunicationLogRepository:
+    """機密情報やBodyを含めず、直近のHTTPメタデータだけを保持する。"""
+
+    def __init__(self, max_entries: int = 100) -> None:
+        self._entries: deque[CommunicationLog] = deque(maxlen=max_entries)
+
+    def save(self, entry: CommunicationLog) -> None:
+        self._entries.append(entry)
+
+    def list(self) -> list[CommunicationLog]:
+        return list(reversed(self._entries))
+
+    def clear(self) -> None:
+        self._entries.clear()

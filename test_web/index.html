@@ -26,6 +26,35 @@
       <p id="status" role="status">APIへ接続してください</p>
     </section>
 
+    <section class="panel control-card simulator-card simulator-overview">
+      <div class="section-heading">
+        <div><span class="step">MOVE</span><h2>移動シミュレーター</h2></div>
+        <span id="simulation-badge" class="simulation-badge">STOPPED</span>
+      </div>
+      <div class="simulator-layout">
+        <label>シナリオ
+          <select id="simulation-scenario">
+            <option value="normal">通常移動</option>
+            <option value="off-route">経路を無視（ルート逸脱）</option>
+            <option value="stationary">停止状態</option>
+            <option value="location-unavailable">位置取得失敗</option>
+          </select>
+        </label>
+        <div class="coordinate-row simulation-settings">
+          <label>送信間隔（秒）<input id="simulation-interval" type="number" value="1.5" min="0.2" step="0.1"></label>
+          <label class="loop-option"><span>経路をループ</span><input id="simulation-loop" type="checkbox" checked></label>
+        </div>
+        <div class="simulation-actions">
+          <button id="simulation-start">移動を開始</button>
+          <button id="simulation-stop" class="danger" disabled>停止</button>
+        </div>
+        <div class="simulation-feedback">
+          <div class="simulation-progress"><span id="simulation-progress-bar"></span></div>
+          <p id="simulation-status" class="hint">画面からScanning Payloadを送信します</p>
+        </div>
+      </div>
+    </section>
+
     <div class="workspace">
       <section class="map-panel panel">
         <div class="section-heading">
@@ -79,30 +108,6 @@
           <div id="obstacle-list" class="obstacle-list"><span class="muted">地図を読み込んでください</span></div>
         </section>
 
-        <section class="panel control-card simulator-card">
-          <div class="section-heading">
-            <div><span class="step">04</span><h2>移動シミュレーター</h2></div>
-            <span id="simulation-badge" class="simulation-badge">STOPPED</span>
-          </div>
-          <label>シナリオ
-            <select id="simulation-scenario">
-              <option value="normal">通常移動</option>
-              <option value="off-route">経路を無視（ルート逸脱）</option>
-              <option value="stationary">停止状態</option>
-              <option value="location-unavailable">位置取得失敗</option>
-            </select>
-          </label>
-          <div class="coordinate-row">
-            <label>送信間隔（秒）<input id="simulation-interval" type="number" value="1.5" min="0.2" step="0.1"></label>
-            <label class="loop-option"><span>経路をループ</span><input id="simulation-loop" type="checkbox" checked></label>
-          </div>
-          <div class="simulation-actions">
-            <button id="simulation-start">移動を開始</button>
-            <button id="simulation-stop" class="danger" disabled>停止</button>
-          </div>
-          <div class="simulation-progress"><span id="simulation-progress-bar"></span></div>
-          <p id="simulation-status" class="hint">画面からScanning Payloadを送信します</p>
-        </section>
       </aside>
     </div>
   </main>

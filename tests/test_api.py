@@ -42,7 +42,7 @@ def client(tmp_path) -> ApiClient:
                 {"id": "short", "name": "近道", "floor_id": "floor-1", "x": 5, "y": 0, "type": "corridor"},
                 {"id": "upper", "name": "迂回路1", "floor_id": "floor-1", "x": 0, "y": 5, "type": "corner"},
                 {"id": "lower", "name": "迂回路2", "floor_id": "floor-1", "x": 5, "y": 5, "type": "corner"},
-                {"id": "goal", "name": "教室", "floor_id": "floor-1", "x": 10, "y": 0, "type": "room"},
+                {"id": "goal", "name": "教室", "floor_id": "floor-1", "x": 10, "y": 0, "type": "room", "selectable": True},
             ],
             "edges": [
                 {"id": "direct-1", "from": "start", "to": "short", "distance": 5, "bidirectional": True},
@@ -89,6 +89,11 @@ def test_get_map_and_missing_map(client: ApiClient) -> None:
     assert response.status_code == 200
     assert len(response.json()["nodes"]) == 5
     assert response.json()["edges"][0]["from"] == "start"
+    nodes = {node["id"]: node for node in response.json()["nodes"]}
+    assert nodes["goal"]["selectable"] is True
+    # selectableを省略した既存地図ノードは互換性のためfalseになる。
+    assert nodes["start"]["selectable"] is False
+    assert {"id", "name", "floor_id", "x", "y", "type", "selectable"} <= nodes["goal"].keys()
     assert client.get("/api/maps/missing").status_code == 404
 
 

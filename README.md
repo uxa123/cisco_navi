@@ -38,7 +38,68 @@ uvicorn app.main:app --reload
 Swagger UIは `http://127.0.0.1:8000/docs`、ヘルスチェックは
 `http://127.0.0.1:8000/api/health` で確認できます。
 
+## Android・Meraki結合試験用の開発パネル
+
+開発パネルが有効な場合、APIと同じサーバーの `http://127.0.0.1:8000/dev` を開くと、
+メモリ上の位置、ナビセッション、通行止め、直近100件のHTTP通信を確認できます。
+
+```bash
+DEV_PANEL_ENABLED=true uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+この試作リポジトリでは既定値を`true`にしています。本番相当環境やLANへ公開する場合は、必ず
+次のように無効化してください。無効時は`/dev`と`/api/dev/*`が404になります。
+
+```bash
+DEV_PANEL_ENABLED=false uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
+開発パネルは以下を提供します。
+
+* Backend状態、クライアント位置、Meraki/PDR/融合/マップマッチ位置の自動更新
+* セッション、現在経路、残距離、次案内、sequenceの表示とセッション終了
+* 既存`POST /api/mock/positions`を使うモック位置登録
+* 既存`POST /api/scanning`を使うMeraki Scanning API v3風Payload送信
+* 既存Movement APIを使う東西南北1mのPDR動作確認
+* 既存障害物APIを使う通行止め登録・解除
+* 開発用メモリ状態のリセット
+
+状態表示用の`GET /api/dev/status`とリセット用の`POST /api/dev/reset`だけを追加しています。
+その他の操作はすべて既存APIを経由し、Repositoryを画面から直接変更しません。
+
+通信履歴は共通middlewareで収集します。`/api/navigation/sessions`系を「Android（推定）」、
+`/api/scanning`を「Meraki / Scanning」、`/dev`と`/api/dev/*`を「Dev Panel」と分類します。
+これはパスに基づく推定で、端末認証ではありません。ログには時刻、method、path、status、処理時間と、
+パスから解決できるsession/clientだけを保存します。リクエストBody、Scanning secret、Authorization
+ヘッダーは保存しません。
+
+結合試験では、パネルからモック位置を登録し、Androidから同じclient IDでセッション開始とMovementを
+送信します。その後パネルからMeraki位置を送信し、Androidの`GET /state`で`meraki_correction`が
+取得できることを確認します。通信一覧にはMovement、Scanning Push、State Pollがそれぞれ表示されます。
+
 ## API使用例
+
+### 地図と目的地候補
+
+`GET /api/maps/{floor_id}`の各nodeには、地点種別を表す`type`と、利用者が目的地として
+選択できるかを表す`selectable`が含まれます。この2項目は独立した属性です。
+
+Androidアプリは`selectable=true`のnodeだけを目的地候補として表示し、表示名に`name`、
+ナビゲーション開始時の`destination_id`に`id`を使用してください。経路計算専用の廊下や
+曲がり角は`selectable=false`です。地図JSONで`selectable`を省略した場合は、既存のテスト地図との
+互換性を維持するため`false`として扱われます。
+
+```json
+{
+  "id": "room-b",
+  "name": "教室B",
+  "floor_id": "floor-1",
+  "x": 15.0,
+  "y": 5.0,
+  "type": "room",
+  "selectable": true
+}
+```
 
 現在位置を登録します。
 

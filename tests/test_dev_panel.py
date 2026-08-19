@@ -70,8 +70,12 @@ def test_dev_panel_page_and_assets(dev_client: Client) -> None:
     page = dev_client.get("/dev")
     assert page.status_code == 200
     assert "Development Console" in page.text
+    assert page.headers["cache-control"] == "no-store, max-age=0"
     assert dev_client.get("/dev/assets/dev.css").status_code == 200
-    assert dev_client.get("/dev/assets/dev.js").status_code == 200
+    script = dev_client.get("/dev/assets/dev.js")
+    assert script.status_code == 200
+    assert script.headers["cache-control"] == "no-store, max-age=0"
+    assert "map.nodes.map" in script.text
 
 
 def test_dev_mock_route_and_payload_use_existing_scanning_format(dev_client: Client) -> None:

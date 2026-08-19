@@ -107,7 +107,7 @@ async function loadSources() {
   const [routeResponse,mapResponse]=await Promise.all([request("/api/dev/mock/route"),request("/api/maps/floor-1")]);
   mock.route=routeResponse.body; map=mapResponse.body;
   $("map-title").textContent=`${map.name} デバッグ地図`;
-  $("manual-point").innerHTML=mock.route.points.map(item=>`<option value="${item.index}">${item.index+1}. ${esc(item.node_name||"移動点")} (${item.x}, ${item.y})</option>`).join("");
+  $("manual-point").innerHTML=map.nodes.map(node=>`<option value="${esc(node.id)}">${esc(node.name)} (${node.x}, ${node.y})${node.selectable?" / 目的地候補":""}</option>`).join("");
   $("obstacle-edge").innerHTML=map.edges.map(edge=>`<option value="${esc(edge.id)}">${esc(edge.id)}: ${esc(edge.from)} → ${esc(edge.to)}</option>`).join("");
   $("mock-count").textContent=`0 / ${mock.route.points.length}`;
   $("selectable-list").innerHTML=`<strong>目的地候補:</strong> ${map.nodes.filter(n=>n.selectable).map(n=>`<span>${esc(n.name)} (${esc(n.id)})</span>`).join("")}`;
@@ -118,9 +118,12 @@ function svg(tag,attributes={}) { const element=document.createElementNS("http:/
 function drawMap() {
   if(!map)return;
   const root=$("facility-map"), width=900, height=470, pad=70;
-  root.replaceChildren(); root.setAttribute("viewBox",`0 0 ${width} ${height}`); $("map-empty").style.display="none";
+  root.replaceChildren(); root.setAttribute("viewBox",`0 0 ${width} ${height}`); root.setAttribute("preserveAspectRatio","xMidYMid meet"); $("map-empty").style.display="none";
   const xs=map.nodes.map(n=>n.x),ys=map.nodes.map(n=>n.y),minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
-  const sx=x=>pad+(x-minX)/(maxX-minX||1)*(width-pad*2), sy=y=>height-pad-(y-minY)/(maxY-minY||1)*(height-pad*2);
+  const rangeX=maxX-minX,rangeY=maxY-minY;
+  const scale=Math.min((width-pad*2)/(rangeX||1),(height-pad*2)/(rangeY||1));
+  const centerX=(minX+maxX)/2,centerY=(minY+maxY)/2;
+  const sx=x=>width/2+(x-centerX)*scale, sy=y=>height/2-(y-centerY)*scale;
   const nodes=Object.fromEntries(map.nodes.map(n=>[n.id,n]));
   const session=currentSession(), routePairs=new Set();
   if(session) for(let i=0;i<session.current_route.length-1;i++){const a=session.current_route[i].id,b=session.current_route[i+1].id;routePairs.add(`${a}|${b}`);routePairs.add(`${b}|${a}`);}
@@ -130,6 +133,10 @@ function drawMap() {
   const client=backend?.clients.find(item=>item.client_id===currentClientId());
   const position=session?.current_position || client?.latest_position;
   if(position) root.append(svg("circle",{cx:sx(position.x),cy:sy(position.y),r:8,class:"current-marker"}));
+  const compass=svg("g",{class:"north-indicator","aria-label":"北方向"});
+  compass.append(svg("line",{x1:width-38,y1:74,x2:width-38,y2:38}));
+  compass.append(svg("path",{d:`M ${width-38} 28 L ${width-46} 43 L ${width-30} 43 Z`}));
+  const northLabel=svg("text",{x:width-38,y:20,"text-anchor":"middle"});northLabel.textContent="N";compass.append(northLabel);root.append(compass);
 }
 
 function renderPosition() {
@@ -161,7 +168,7 @@ function renderStatus() {
 async function refreshStatus(){if(refreshing)return;refreshing=true;try{backend=(await request("/api/dev/status")).body;renderStatus();}catch(error){setMessage(error.message,true);}finally{refreshing=false;}}
 
 $("mock-start").onclick=()=>startMock(false); $("mock-pause").onclick=pauseMock; $("mock-stop").onclick=stopMock; $("mock-replay").onclick=()=>startMock(true);
-$("send-point").onclick=async()=>{const item=mock.route?.points[Number($("manual-point").value)];if(!item)return;try{await generateAndSend(item.x,item.y,$("mock-scenario").value,item.node_name||`移動点 ${item.index+1}`);}catch{}};
+$("send-point").onclick=async()=>{const node=map?.nodes.find(item=>item.id===$("manual-point").value);if(!node)return;try{await generateAndSend(node.x,node.y,$("mock-scenario").value,node.name);}catch{}};
 $("send-coordinate").onclick=async()=>{try{await generateAndSend(Number($("manual-x").value),Number($("manual-y").value),$("mock-scenario").value,"指定座標");}catch{}};
 async function setObstacle(blocked){try{await request("/api/obstacles",{method:"POST",body:JSON.stringify({edge_id:$("obstacle-edge").value,blocked,reason:$("obstacle-reason").value||null,source:"dev-console"})});await refreshStatus();}catch(error){setMessage(error.message,true);}}
 $("block-edge").onclick=()=>setObstacle(true); $("unblock-edge").onclick=()=>setObstacle(false); $("refresh-button").onclick=refreshStatus;

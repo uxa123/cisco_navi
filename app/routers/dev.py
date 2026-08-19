@@ -12,24 +12,31 @@ from app.schemas.dev import (
 
 router = APIRouter(include_in_schema=False)
 ASSET_DIR = Path(__file__).resolve().parent.parent / "dev_static"
-PANEL_HTML = (ASSET_DIR / "index.html").read_text(encoding="utf-8")
-PANEL_CSS = (ASSET_DIR / "dev.css").read_text(encoding="utf-8")
-PANEL_JS = (ASSET_DIR / "dev.js").read_text(encoding="utf-8")
+NO_CACHE_HEADERS = {"Cache-Control": "no-store, max-age=0"}
 
 
 @router.get("/dev")
 async def development_panel() -> HTMLResponse:
-    return HTMLResponse(PANEL_HTML)
+    return HTMLResponse(
+        (ASSET_DIR / "index.html").read_text(encoding="utf-8"),
+        headers=NO_CACHE_HEADERS,
+    )
 
 
 @router.get("/dev/assets/dev.css")
 async def development_styles() -> Response:
-    return Response(PANEL_CSS, media_type="text/css")
+    return Response(
+        (ASSET_DIR / "dev.css").read_text(encoding="utf-8"),
+        media_type="text/css", headers=NO_CACHE_HEADERS,
+    )
 
 
 @router.get("/dev/assets/dev.js")
 async def development_script() -> Response:
-    return Response(PANEL_JS, media_type="text/javascript")
+    return Response(
+        (ASSET_DIR / "dev.js").read_text(encoding="utf-8"),
+        media_type="text/javascript", headers=NO_CACHE_HEADERS,
+    )
 
 
 @router.get("/api/dev/status", response_model=DevStatusResponse)

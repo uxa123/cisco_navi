@@ -53,7 +53,7 @@ def create_app(map_path: Path | None = None, dev_panel_enabled: bool | None = No
         application.state.obstacles, application.state.sessions,
     )
     application.state.dev_panel = DevPanelService(
-        application.state.positions, application.state.sessions,
+        application.state.map_repository, application.state.positions, application.state.sessions,
         application.state.obstacles, application.state.communication_logs,
     )
     application.include_router(router)

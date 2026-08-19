@@ -11,6 +11,38 @@ class RouteNotFoundError(RuntimeError):
     """通行可能な経路が存在しない場合の例外。"""
 
 
+def absolute_heading_deg(x: float, y: float, target_x: float, target_y: float) -> float | None:
+    """現在座標から目標座標への絶対方位を0°=北、90°=東で返す。"""
+    dx, dy = target_x - x, target_y - y
+    if math.hypot(dx, dy) < 1e-6:
+        return None
+    return round(math.degrees(math.atan2(dx, dy)) % 360, 2)
+
+
+def segment_action(route: list[MapNode], index: int) -> str:
+    """経路の指定セグメントへ進入するときの案内種別を返す。"""
+    if index <= 0:
+        return "straight"
+    previous, current, following = route[index - 1], route[index], route[index + 1]
+    ax, ay = current.x - previous.x, current.y - previous.y
+    bx, by = following.x - current.x, following.y - current.y
+    cross = ax * by - ay * bx
+    dot = ax * bx + ay * by
+    angle = math.degrees(math.atan2(abs(cross), dot))
+    if angle < 30:
+        return "straight"
+    return "left" if cross > 0 else "right"
+
+
+def guidance_step(action: str, distance: float) -> GuidanceStep:
+    messages = {
+        "straight": f"{distance:g}メートル直進してください",
+        "left": f"左折して{distance:g}メートル進んでください",
+        "right": f"右折して{distance:g}メートル進んでください",
+    }
+    return GuidanceStep(type=action, distance=distance, message=messages[action])
+
+
 def find_nearest_node(floor_map: FloorMap, x: float, y: float) -> tuple[MapNode, float]:
     """指定座標からユークリッド距離が最小となるノードを返す。"""
     if not floor_map.nodes:
@@ -53,23 +85,6 @@ class NavigationService:
         for index in range(len(route) - 1):
             current, following = route[index], route[index + 1]
             distance = round(float(graph[current.id][following.id]["weight"]), 2)
-            turn = "straight"
-            if index > 0:
-                previous = route[index - 1]
-                # 進入ベクトルと退出ベクトルの外積の符号で左右を判定する。
-                ax, ay = current.x - previous.x, current.y - previous.y
-                bx, by = following.x - current.x, following.y - current.y
-                cross = ax * by - ay * bx
-                dot = ax * bx + ay * by
-                angle = math.degrees(math.atan2(abs(cross), dot))
-                # 小さな方向変化は測量誤差を考慮し、直進として扱う。
-                if angle >= 30:
-                    turn = "left" if cross > 0 else "right"
-            messages = {
-                "straight": f"{distance:g}メートル直進してください",
-                "left": f"左折して{distance:g}メートル進んでください",
-                "right": f"右折して{distance:g}メートル進んでください",
-            }
-            result.append(GuidanceStep(type=turn, distance=distance, message=messages[turn]))
+            result.append(guidance_step(segment_action(route, index), distance))
         result.append(GuidanceStep(type="arrive", distance=0, message="目的地に到着しました"))
         return result

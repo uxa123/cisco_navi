@@ -54,18 +54,28 @@ DEV_PANEL_ENABLED=true uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 DEV_PANEL_ENABLED=false uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-開発パネルは以下を提供します。
+開発コンソールは以下を提供します。
 
-* Backend状態、クライアント位置、Meraki/PDR/融合/マップマッチ位置の自動更新
-* セッション、現在経路、残距離、次案内、sequenceの表示とセッション終了
-* 既存`POST /api/mock/positions`を使うモック位置登録
-* 既存`POST /api/scanning`を使うMeraki Scanning API v3風Payload送信
-* 既存Movement APIを使う東西南北1mのPDR動作確認
-* 既存障害物APIを使う通行止め登録・解除
-* 開発用メモリ状態のリセット
+* 正本の`scripts/mock_data/floor_1_route.json`を使うScanningモック自動再生
+* client ID、送信間隔、通常・停止・測位失敗・ノイズ、ループの設定
+* 開始、一時停止、停止、最初から再生、経路地点または任意座標の即時送信
+* `GET /api/maps/floor-1`を使うnodes、edges、目的地、現在位置、経路、通行止めのSVG表示
+* Meraki/PDR/融合/マップマッチ位置、ナビ状態、残距離、案内の自動更新
+* Android候補通信、State Poll、Scanning Push、モック送信結果のログ表示
+* 既存障害物APIを使う通行止め登録・解除と、開発用メモリ状態のリセット
 
-状態表示用の`GET /api/dev/status`とリセット用の`POST /api/dev/reset`だけを追加しています。
-その他の操作はすべて既存APIを経由し、Repositoryを画面から直接変更しません。
+開発用APIは状態取得とリセットに加え、正本のモック経路取得と、既存
+`ScanningMockService`によるPayload生成を提供します。
+
+```text
+GET  /api/dev/status
+POST /api/dev/reset
+GET  /api/dev/mock/route
+POST /api/dev/mock/payload
+```
+
+ブラウザは生成されたPayloadを必ず既存`POST /api/scanning`へ送ります。開発APIから
+Position Repositoryを直接更新することはありません。
 
 通信履歴は共通middlewareで収集します。`/api/navigation/sessions`系を「Android（推定）」、
 `/api/scanning`を「Meraki / Scanning」、`/dev`と`/api/dev/*`を「Dev Panel」と分類します。
@@ -73,9 +83,10 @@ DEV_PANEL_ENABLED=false uvicorn app.main:app --host 0.0.0.0 --port 8000
 パスから解決できるsession/clientだけを保存します。リクエストBody、Scanning secret、Authorization
 ヘッダーは保存しません。
 
-結合試験では、パネルからモック位置を登録し、Androidから同じclient IDでセッション開始とMovementを
-送信します。その後パネルからMeraki位置を送信し、Androidの`GET /state`で`meraki_correction`が
-取得できることを確認します。通信一覧にはMovement、Scanning Push、State Pollがそれぞれ表示されます。
+結合試験では、`client_id=mock-user-01`、送信間隔5秒でScanningモックを開始し、初期位置が
+送信された後にAndroidから同じclient IDでナビを開始します。AndroidからMovementを送信しなくても、
+Scanning Pushごとに位置と残距離が更新され、教室Bで`arrived`になります。Androidの定期
+`GET /state`は「Android（推定）」の通信とState Poll最終時刻として画面に表示されます。
 
 ## API使用例
 
@@ -159,6 +170,23 @@ movementは`distance_m`の代わりに`steps`と`step_length_m`も指定でき�
 `sequence`は適用済みとして扱われ、位置へ二重加算されません。状態レスポンスにはMeraki位置、
 PDR位置、融合位置、マップマッチした通路、残距離、次の案内が含まれます。
 
+`next_guidance.target_heading_deg`には、現在のマップマッチ位置から次の経路ノードへ進むための
+絶対方位が入ります。方位は`0°=北(+Y)`、`90°=東(+X)`、`180°=南(-Y)`、
+`270°=西(-X)`で、0以上360未満です。AndroidはRotation Vectorから得た現在方位との差を使って
+左右の向き直しを案内します。バックエンドは端末の向きや左右を判定しません。到着済み、経路なし、
+安全に次の経路点を決められない場合は`null`になります。
+
+```json
+{
+  "next_guidance": {
+    "action": "straight",
+    "distance_m": 5.0,
+    "message": "5メートル直進してください",
+    "target_heading_deg": 90.0
+  }
+}
+```
+
 新しいMeraki位置を受信すると、同じclient_idの実行中セッションだけがその絶対位置で補正され、
 以後のPDR積算基準もリセットされます。推定位置は3m以内の最寄り通路へ投影され、現在ルートから
 2mを超えて外れた場合は再探索します。目的地から1m以内は到着と判定します。現在ルート上の通路が
@@ -237,6 +265,20 @@ MR36実機がない期間に、MerakiのWi-Fi Payloadに近いJSONを
 
 ### 通常移動
 
+AndroidアプリとPDRなしで結合確認する場合は、Androidと同じ`mock-user-01`（スクリプトの
+既定値）を使い、5秒間隔で経路を繰り返し送信します。最初の位置は起動直後に送信されます。
+
+```bash
+python scripts/simulate_scanning.py \
+  --loop \
+  --interval 5 \
+  --client-id mock-user-01
+```
+
+既定経路は入口 `(0, 0)` から廊下A、廊下B、曲がり角Bを通り、教室B `(15, 5)` へ
+到着します。位置更新はすべて`POST /api/scanning`から行われるため、AndroidからMovement APIを
+送信する必要はありません。
+
 ```bash
 python scripts/simulate_scanning.py \
   --scenario normal \
@@ -271,7 +313,8 @@ python scripts/simulate_scanning.py --scenario normal --dry-run
 以下の引数を利用できます。
 
 * `--endpoint`：Scanning受信URL
-* `--client-mac`：端末識別用MACアドレス
+* `--client-id`：`clientMac`へ設定するAndroidと共通のクライアントID（既定値`mock-user-01`）
+* `--client-mac`：`--client-id`の後方互換エイリアス
 * `--network-id`：MerakiネットワークID
 * `--secret`：Payloadのsecret
 * `--interval`：全地点の待機時間を上書き
@@ -282,7 +325,7 @@ python scripts/simulate_scanning.py --scenario normal --dry-run
 * `--seed`：RSSIと測位誤差の乱数シード
 * `--dry-run`：HTTP送信を行わず標準出力へ表示
 
-`--client-mac`、`--network-id`、`--secret` は、それぞれ環境変数
+`--client-id`（または`--client-mac`）、`--network-id`、`--secret` は、それぞれ環境変数
 `MERAKI_MOCK_CLIENT_MAC`、`MERAKI_MOCK_NETWORK_ID`、`MERAKI_MOCK_SECRET` でも変更できます。
 コマンドライン引数を指定した場合は引数が優先されます。
 
@@ -301,11 +344,15 @@ AP配置は `scripts/mock_data/ap_positions.json` で編集します。各APのM
 Swagger UIの `POST /api/scanning` からPayloadを直接送信できます。受信後は
 `GET /api/positions/{client_id}` で正規化された最新位置を確認できます。
 
-SVGテスト画面のクライアントIDを送信スクリプトの `--client-mac` と一致させると、
+SVGテスト画面のクライアントIDを送信スクリプトの `--client-id` と一致させると、
 最新位置を1秒間隔で取得してマーカーと探索経路を更新します。目的地欄の `LIVE` が有効な間は、
 位置が変わるたびに最寄りノードから自動で再探索します。画面には更新回数、開始地点、目的地、
-更新時刻が表示され、更新時には地図が緑色に点滅します。既定値はどちらも
-`cc:cc:cc:11:11:11` です。
+更新時刻が表示され、更新時には地図が緑色に点滅します。スクリプトの既定値は
+`mock-user-01`です。
+
+Androidとの確認では、初回Scanning Push後に同じclient IDでナビセッションを開始し、
+`GET /api/navigation/sessions/{session_id}/state`を定期取得してください。Scanning Pushが進むたびに
+`current_position`と`remaining_distance_m`が更新され、最終地点付近では`status=arrived`になります。
 
 ### 実機への切り替え
 

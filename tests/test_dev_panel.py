@@ -69,9 +69,30 @@ def test_dev_panel_can_be_disabled() -> None:
 def test_dev_panel_page_and_assets(dev_client: Client) -> None:
     page = dev_client.get("/dev")
     assert page.status_code == 200
-    assert "Development Panel" in page.text
+    assert "Development Console" in page.text
     assert dev_client.get("/dev/assets/dev.css").status_code == 200
     assert dev_client.get("/dev/assets/dev.js").status_code == 200
+
+
+def test_dev_mock_route_and_payload_use_existing_scanning_format(dev_client: Client) -> None:
+    route = dev_client.get("/api/dev/mock/route")
+    assert route.status_code == 200
+    body = route.json()
+    assert body["floor_id"] == "floor-1"
+    assert [(point["x"], point["y"]) for point in body["points"]] == [
+        (0.0, 0.0), (2.5, 0.0), (5.0, 0.0), (5.0, 2.5),
+        (5.0, 5.0), (10.0, 5.0), (15.0, 5.0),
+    ]
+    generated = dev_client.post("/api/dev/mock/payload", json={
+        "client_id": "mock-user-01", "x": 5, "y": 0, "scenario": "normal",
+    })
+    assert generated.status_code == 200
+    payload = generated.json()["payload"]
+    assert payload["version"] == "3.0"
+    assert payload["data"]["observations"][0]["clientMac"] == "mock-user-01"
+    assert payload["data"]["observations"][0]["locations"][0]["floorPlanId"] == "floor-1"
+    # Payload生成だけでは位置Repositoryを更新しない。必ず/api/scanningへの送信が必要。
+    assert dev_client.get("/api/positions/mock-user-01").status_code == 404
 
 
 def test_integration_operations_logs_and_reset(dev_client: Client) -> None:

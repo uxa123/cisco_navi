@@ -11,6 +11,7 @@ from app.main import create_app
 from app.services.scanning_mock_service import (
     AccessPoint, MockDataError, MockRoute, RoutePosition, ScanningMockService, load_route,
 )
+from scripts.simulate_scanning import build_parser, position_stream
 
 
 @pytest.fixture()
@@ -122,3 +123,17 @@ def test_unavailable_location_does_not_overwrite_latest(route: MockRoute, aps: l
     assert received.json()["skipped"] == 1
     latest = api_request(app, "GET", "/api/positions/cc:cc:cc:11:11:11").json()
     assert latest["position"]["x"] == 5.0
+
+
+def test_scanning_simulator_defaults_to_android_client_id(monkeypatch) -> None:
+    monkeypatch.delenv("MERAKI_MOCK_CLIENT_MAC", raising=False)
+    args = build_parser().parse_args([])
+    assert args.client_mac == "mock-user-01"
+    assert build_parser().parse_args(["--client-id", "android-test"]).client_mac == "android-test"
+    # 後方互換の--client-macも同じPayloadフィールドへ設定される。
+    assert build_parser().parse_args(["--client-mac", "legacy-test"]).client_mac == "legacy-test"
+
+
+def test_scanning_simulator_loops_route_positions(route: MockRoute) -> None:
+    stream = position_stream(route, "normal", loop=True)
+    assert [next(stream).x for _ in range(4)] == [0, 5, 0, 5]

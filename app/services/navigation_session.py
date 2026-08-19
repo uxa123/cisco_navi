@@ -10,7 +10,10 @@ from app.schemas.models import (
     NavigationSession, NavigationPoint, NormalizedPosition, RouteNode,
 )
 from app.services.map_matching import MapMatchingService
-from app.services.navigation import NavigationService, RouteNotFoundError, find_nearest_node
+from app.services.navigation import (
+    NavigationService, RouteNotFoundError, absolute_heading_deg, find_nearest_node,
+    guidance_step, segment_action,
+)
 from app.services.pdr import PdrService
 from app.services.position_fusion import PositionFusionService
 
@@ -86,7 +89,11 @@ class NavigationSessionService:
         session = self.get(session_id)
         if session.status == "active":
             session = session.model_copy(update={
-                "status": "finished", "updated_at": datetime.now(timezone.utc),
+                "status": "finished",
+                "next_guidance": session.next_guidance.model_copy(
+                    update={"target_heading_deg": None}
+                ),
+                "updated_at": datetime.now(timezone.utc),
             })
             self.sessions.save(session)
         return session
@@ -145,9 +152,12 @@ class NavigationSessionService:
         route = [RouteNode(id=node.id, name=node.name, x=node.x, y=node.y) for node in nodes]
         edge_ids = self._route_edges(floor, [node.id for node in nodes])
         first = guidance[0]
-        next_guidance = NavigationGuidance(
-            action=first.type, distance_m=round(first.distance + offset, 2), message=first.message,
-        )
+        next_guidance = self._guidance_for_route(current, route)
+        if next_guidance is None:
+            next_guidance = NavigationGuidance(
+                action=first.type, distance_m=round(first.distance + offset, 2),
+                message=first.message, target_heading_deg=None,
+            )
         return route, edge_ids, round(distance + offset, 2), next_guidance
 
     @staticmethod
@@ -169,21 +179,56 @@ class NavigationSessionService:
                    for a, b in zip(route, route[1:]))
 
     @staticmethod
-    def _remaining_on_route(current: NavigationCurrentPosition, route: list[RouteNode]) -> tuple[float, float]:
+    def _route_progress(
+        current: NavigationCurrentPosition, route: list[RouteNode],
+    ) -> tuple[float, float, int] | None:
+        """最寄りセグメントと、その終点・目的地までの距離を返す。
+
+        曲がり角の共有点では累積進捗が大きい後続セグメントを選び、
+        到達直後に次の進行方向へ切り替える。
+        """
         if len(route) < 2:
-            return 0.0, 0.0
+            return None
         best = None
         suffix = [0.0] * len(route)
+        prefix = [0.0] * len(route)
         for index in range(len(route) - 2, -1, -1):
             suffix[index] = suffix[index + 1] + math.hypot(
                 route[index + 1].x - route[index].x, route[index + 1].y - route[index].y)
+        for index in range(1, len(route)):
+            prefix[index] = prefix[index - 1] + math.hypot(
+                route[index].x - route[index - 1].x, route[index].y - route[index - 1].y)
         for index, (a, b) in enumerate(zip(route, route[1:])):
             x, y, distance = MapMatchingService.project(current.x, current.y, a.x, a.y, b.x, b.y)
             remaining_segment = math.hypot(b.x - x, b.y - y)
-            candidate = (distance, remaining_segment + suffix[index + 1], remaining_segment)
-            if best is None or candidate[0] < best[0]:
+            segment_length = math.hypot(b.x - a.x, b.y - a.y)
+            progress = prefix[index] + max(0.0, segment_length - remaining_segment)
+            candidate = (
+                distance, -progress, -index, remaining_segment + suffix[index + 1],
+                remaining_segment, index,
+            )
+            if best is None or candidate[:3] < best[:3]:
                 best = candidate
-        return best[1], best[2]
+        return best[3], best[4], best[5]
+
+    @classmethod
+    def _guidance_for_route(
+        cls, current: NavigationCurrentPosition, route: list[RouteNode],
+    ) -> NavigationGuidance | None:
+        progress = cls._route_progress(current, route)
+        if progress is None:
+            return None
+        _, next_distance, segment_index = progress
+        target = route[segment_index + 1]
+        heading = absolute_heading_deg(current.x, current.y, target.x, target.y)
+        if heading is None:
+            return None
+        distance = round(next_distance, 2)
+        step = guidance_step(segment_action(route, segment_index), distance)
+        return NavigationGuidance(
+            action=step.type, distance_m=distance, message=step.message,
+            target_heading_deg=heading,
+        )
 
     def _update(self, session, fused, force_replan: bool = False) -> NavigationSession:
         floor = self.maps.get_floor(fused.fused_position.floor_id)
@@ -196,7 +241,10 @@ class NavigationSessionService:
             return session.model_copy(update={
                 "status": "arrived", "current_position": current, "position_state": fused,
                 "remaining_distance_m": 0.0,
-                "next_guidance": NavigationGuidance(action="arrive", distance_m=0, message="目的地に到着しました"),
+                "next_guidance": NavigationGuidance(
+                    action="arrive", distance_m=0, message="目的地に到着しました",
+                    target_heading_deg=None,
+                ),
                 "route_changed": False, "updated_at": now,
             })
         off_route = self._distance_to_route(current, session.current_route) > OFF_ROUTE_TOLERANCE_M
@@ -208,11 +256,15 @@ class NavigationSessionService:
                 "next_guidance": guidance, "route_changed": True,
                 "updated_at": datetime.now(timezone.utc),
             })
-        remaining, next_distance = self._remaining_on_route(current, session.current_route)
-        guidance = NavigationGuidance(
-            action="straight", distance_m=round(next_distance, 2),
-            message=f"{round(next_distance, 2):g}メートル直進してください",
-        )
+        progress = self._route_progress(current, session.current_route)
+        if progress is None:
+            remaining = session.remaining_distance_m
+            guidance = session.next_guidance.model_copy(update={"target_heading_deg": None})
+        else:
+            remaining, _, _ = progress
+            guidance = self._guidance_for_route(current, session.current_route)
+            if guidance is None:
+                guidance = session.next_guidance.model_copy(update={"target_heading_deg": None})
         return session.model_copy(update={
             "current_position": current, "position_state": fused,
             "remaining_distance_m": round(remaining, 2), "next_guidance": guidance,

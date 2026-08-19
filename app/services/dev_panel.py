@@ -2,14 +2,23 @@
 
 import re
 from datetime import datetime, timezone
+from pathlib import Path
 
 from app.repositories import (
     CommunicationLogRepository, NavigationSessionRepository, ObstacleRepository,
     PositionRepository,
 )
-from app.schemas.dev import DevClientState, DevLastAccess, DevStatusResponse
+from app.schemas.dev import (
+    DevClientState, DevLastAccess, DevMockPayloadRequest, DevMockPayloadResponse,
+    DevMockPoint, DevMockRouteResponse, DevStatusResponse,
+)
+from app.services.navigation import find_nearest_node
+from app.services.scanning_mock_service import (
+    MockRoute, RoutePosition, ScanningMockService, load_access_points, load_route,
+)
 
 SESSION_PATH = re.compile(r"^/api/navigation/sessions/([^/]+)")
+MOCK_DATA_DIR = Path(__file__).resolve().parents[2] / "scripts" / "mock_data"
 
 
 def classify_source(path: str) -> str:
@@ -29,13 +38,50 @@ def session_id_from_path(path: str) -> str | None:
 
 class DevPanelService:
     def __init__(
-        self, positions: PositionRepository, sessions: NavigationSessionRepository,
+        self, maps, positions: PositionRepository, sessions: NavigationSessionRepository,
         obstacles: ObstacleRepository, logs: CommunicationLogRepository,
     ) -> None:
+        self.maps = maps
         self.positions = positions
         self.sessions = sessions
         self.obstacles = obstacles
         self.logs = logs
+        self._mock_service: ScanningMockService | None = None
+
+    def mock_route(self) -> DevMockRouteResponse:
+        route = load_route(MOCK_DATA_DIR / "floor_1_route.json")
+        floor = self.maps.get_floor(route.floor_plan_id)
+        points = []
+        for index, position in enumerate(route.positions):
+            node_id = node_name = None
+            if floor is not None:
+                nearest, distance = find_nearest_node(floor, position.x, position.y)
+                if distance < 0.01:
+                    node_id, node_name = nearest.id, nearest.name
+            points.append(DevMockPoint(
+                index=index, x=position.x, y=position.y,
+                wait_seconds=position.wait_seconds, node_id=node_id, node_name=node_name,
+            ))
+        return DevMockRouteResponse(
+            floor_id=route.floor_plan_id, floor_name=route.floor_plan_name, points=points,
+        )
+
+    def mock_payload(self, request: DevMockPayloadRequest) -> DevMockPayloadResponse:
+        route_data = self.mock_route()
+        route = MockRoute(
+            floorPlanId=route_data.floor_id, floorPlanName=route_data.floor_name,
+            positions=[RoutePosition(x=request.x, y=request.y)],
+        )
+        if self._mock_service is None:
+            self._mock_service = ScanningMockService(
+                load_access_points(MOCK_DATA_DIR / "ap_positions.json"), seed=42,
+            )
+        payload = self._mock_service.build_payload(
+            route=route, position=route.positions[0], observed_at=datetime.now(timezone.utc),
+            client_mac=request.client_id, network_id="L_TEST", secret="test-secret",
+            scenario=request.scenario,
+        )
+        return DevMockPayloadResponse(payload=payload)
 
     def status(self) -> DevStatusResponse:
         sessions = self.sessions.list()
@@ -73,3 +119,4 @@ class DevPanelService:
         self.sessions.clear()
         self.obstacles.clear()
         self.logs.clear()
+        self._mock_service = None

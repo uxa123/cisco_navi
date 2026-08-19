@@ -1,7 +1,7 @@
 """開発パネル専用の読み取りモデル。"""
 
 from datetime import datetime
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel
 
@@ -50,3 +50,29 @@ class DevStatusResponse(BaseModel):
 
 class DevResetResponse(BaseModel):
     message: str
+
+
+class DevMockPoint(BaseModel):
+    index: int
+    x: float
+    y: float
+    wait_seconds: float
+    node_id: str | None = None
+    node_name: str | None = None
+
+
+class DevMockRouteResponse(BaseModel):
+    floor_id: str
+    floor_name: str
+    points: list[DevMockPoint]
+
+
+class DevMockPayloadRequest(BaseModel):
+    client_id: str
+    x: float
+    y: float
+    scenario: Literal["normal", "stationary", "location-unavailable", "noisy"] = "normal"
+
+
+class DevMockPayloadResponse(BaseModel):
+    payload: dict[str, Any]

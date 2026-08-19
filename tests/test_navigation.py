@@ -7,8 +7,10 @@ from datetime import datetime, timezone
 import pytest
 import httpx
 
-from app.schemas.models import FloorMap, MovementRequest, NavigationPoint
+from app.schemas.models import FloorMap, MovementRequest, NavigationCurrentPosition, NavigationPoint
 from app.services.map_matching import MapMatchingService
+from app.services.navigation import absolute_heading_deg
+from app.services.navigation_session import NavigationSessionService
 from app.services.pdr import PdrService
 from app.main import create_app
 
@@ -41,6 +43,7 @@ def nav_client(tmp_path) -> ApiClient:
             {"id": "upper", "name": "上側", "floor_id": "floor-1", "x": 0, "y": 5, "type": "corridor"},
             {"id": "upper-right", "name": "上側右", "floor_id": "floor-1", "x": 10, "y": 5, "type": "corridor"},
             {"id": "goal", "name": "目的地", "floor_id": "floor-1", "x": 10, "y": 0, "type": "room"},
+            {"id": "north-goal", "name": "北側目的地", "floor_id": "floor-1", "x": 5, "y": 5, "type": "room"},
         ],
         "edges": [
             {"id": "direct-1", "from": "start", "to": "middle", "distance": 5},
@@ -48,6 +51,7 @@ def nav_client(tmp_path) -> ApiClient:
             {"id": "detour-1", "from": "start", "to": "upper", "distance": 5},
             {"id": "detour-2", "from": "upper", "to": "upper-right", "distance": 10},
             {"id": "detour-3", "from": "upper-right", "to": "goal", "distance": 5},
+            {"id": "turn-north", "from": "middle", "to": "north-goal", "distance": 5},
         ],
     }]}
     path = tmp_path / "map.json"
@@ -104,6 +108,54 @@ def test_pdr_cardinal_directions(heading: float, expected: tuple[float, float]) 
     result = PdrService().apply(origin, request)
     assert result.x == pytest.approx(expected[0], abs=1e-9)
     assert result.y == pytest.approx(expected[1], abs=1e-9)
+
+
+@pytest.mark.parametrize(("target", "expected"), [
+    ((0, 5), 0), ((5, 0), 90), ((0, -5), 180), ((-5, 0), 270),
+    ((5, 5), 45), ((5, -5), 135), ((-5, -5), 225), ((-5, 5), 315),
+])
+def test_absolute_target_heading(target: tuple[float, float], expected: float) -> None:
+    assert absolute_heading_deg(0, 0, *target) == pytest.approx(expected)
+
+
+def test_target_heading_is_none_for_same_point() -> None:
+    assert absolute_heading_deg(1, 1, 1, 1) is None
+    current = NavigationCurrentPosition(floor_id="f", x=1, y=1, source="test")
+    assert NavigationSessionService._guidance_for_route(current, []) is None
+
+
+def test_target_heading_changes_at_corner_and_is_none_on_arrival(nav_client: ApiClient) -> None:
+    register(nav_client, "turn-user")
+    created = nav_client.post("/api/navigation/sessions", json={
+        "client_id": "turn-user", "destination_id": "north-goal",
+    })
+    assert created.status_code == 201
+    session_id = created.json()["session_id"]
+    assert created.json()["next_guidance"]["target_heading_deg"] == pytest.approx(90)
+
+    at_corner = movement(nav_client, session_id, 1, 5, 90)
+    assert at_corner["next_guidance"]["action"] == "left"
+    assert at_corner["next_guidance"]["target_heading_deg"] == pytest.approx(0)
+    state = nav_client.get(f"/api/navigation/sessions/{session_id}/state").json()
+    assert state["next_guidance"]["target_heading_deg"] == pytest.approx(0)
+
+    arrived = movement(nav_client, session_id, 2, 5, 0)
+    assert arrived["status"] == "arrived"
+    assert arrived["next_guidance"]["target_heading_deg"] is None
+    fetched = nav_client.get(f"/api/navigation/sessions/{session_id}").json()
+    assert fetched["next_guidance"]["target_heading_deg"] is None
+
+
+def test_replanned_route_updates_target_heading(nav_client: ApiClient) -> None:
+    register(nav_client, "reroute-user")
+    created = start(nav_client, "reroute-user")
+    assert created["next_guidance"]["target_heading_deg"] == pytest.approx(90)
+    assert nav_client.post("/api/obstacles", json={
+        "edge_id": "direct-1", "blocked": True,
+    }).status_code == 200
+    state = nav_client.get(f"/api/navigation/sessions/{created['session_id']}/state").json()
+    assert state["route_changed"] is True
+    assert state["next_guidance"]["target_heading_deg"] == pytest.approx(0)
 
 
 def test_pdr_accumulates_and_duplicate_sequence_is_idempotent(nav_client: ApiClient) -> None:

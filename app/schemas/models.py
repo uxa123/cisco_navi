@@ -247,6 +247,7 @@ class NavigationGuidance(BaseModel):
     action: Literal["straight", "right", "left", "arrive"]
     distance_m: float
     message: str
+    target_heading_deg: float | None = None
 
 
 class NavigationCurrentPosition(BaseModel):

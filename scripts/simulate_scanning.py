@@ -33,7 +33,7 @@ def position_stream(route: MockRoute, scenario: str, loop: bool) -> Iterator[Rou
             break
 
 
-def send_payload(endpoint: str, payload: dict[str, Any], timeout: float = 10) -> int:
+def send_payload(endpoint: str, payload: dict[str, Any], timeout: float = 10) -> tuple[int, str]:
     """Payloadを最大3回送信し、一時的な通信エラーから復旧する。"""
     data = json.dumps(payload, ensure_ascii=False).encode("utf-8")
     for attempt in range(1, 4):
@@ -41,7 +41,7 @@ def send_payload(endpoint: str, payload: dict[str, Any], timeout: float = 10) ->
         try:
             with urlopen(request, timeout=timeout) as response:
                 response.read()
-                return response.status
+                return response.status, str(response.reason or "")
         except HTTPError as exc:
             body = exc.read().decode("utf-8", errors="replace")
             # 4xxは再送しても改善しないため、その場で内容を表示して終了する。
@@ -61,7 +61,11 @@ def build_parser() -> argparse.ArgumentParser:
     """コマンドライン引数を定義する。"""
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--endpoint", default="http://127.0.0.1:8000/api/scanning")
-    parser.add_argument("--client-mac", default=os.getenv("MERAKI_MOCK_CLIENT_MAC", "cc:cc:cc:11:11:11"))
+    parser.add_argument(
+        "--client-id", "--client-mac", dest="client_mac",
+        default=os.getenv("MERAKI_MOCK_CLIENT_MAC", "mock-user-01"),
+        help="clientMacへ設定するAndroidと共通のクライアントID（--client-macも利用可能）",
+    )
     parser.add_argument("--network-id", default=os.getenv("MERAKI_MOCK_NETWORK_ID", "L_MOCK_NETWORK"))
     parser.add_argument("--secret", default=os.getenv("MERAKI_MOCK_SECRET", "mock-secret"))
     parser.add_argument("--interval", type=float, default=None, help="経路JSONの待機秒数を上書き")
@@ -96,12 +100,13 @@ def main() -> int:
             y = location[0]["y"] if location else "unavailable"
             if args.dry_run:
                 print(json.dumps(payload, ensure_ascii=False, indent=2))
-                status: int | str = "dry-run"
+                status = "dry-run"
             else:
-                status = send_payload(args.endpoint, payload)
+                status_code, reason = send_payload(args.endpoint, payload)
+                status = f"{status_code} {reason}"
             print(
-                f"[{now.astimezone().strftime('%H:%M:%S')}] client={args.client_mac} "
-                f"x={x} y={y} status={status}", file=sys.stderr,
+                f"[{now.astimezone().strftime('%H:%M:%S')}] {args.client_mac} "
+                f"-> ({x}, {y}) {status}", file=sys.stderr,
             )
             wait_seconds = 0 if args.dry_run else (args.interval if args.interval is not None else position.wait_seconds)
             # 最終送信後は不要に待たない。ループ時だけ次の周回へ備えて待機する。
